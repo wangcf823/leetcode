@@ -1,0 +1,67 @@
+给定两个大小分别为 m 和 n 的正序（从小到大）数组 nums1 和 nums2。请你找出并返回这两个正序数组的 中位数 。
+
+算法的时间复杂度应该为 O(log (m+n)) 。
+
+ 
+
+示例 1：
+
+输入：nums1 = [1,3], nums2 = [2]
+输出：2.00000
+解释：合并数组 = [1,2,3] ，中位数 2
+示例 2：
+
+输入：nums1 = [1,2], nums2 = [3,4]
+输出：2.50000
+解释：合并数组 = [1,2,3,4] ，中位数 (2 + 3) / 2 = 2.5
+
+
+
+class Solution:
+    def findMedianSortedArrays(self, nums1: List[int], nums2: List[int]) -> float:
+        a = nums1 + nums2
+        a.sort()
+        n = len(a)//2
+        if len(a)%2==0:
+            return (a[n-1]+a[n])/2.0
+        else:
+            return a[n]
+
+
+
+解题思路
+这里使用在nums两侧添加正负无穷的方法，以避免后续判断切割点位置的操作。
+
+代码
+
+class Solution:
+    def findMedianSortedArrays(self, nums1: List[int], nums2: List[int]) -> float:
+
+        if not nums1 and not nums2: return 0.0
+        if len(nums1) > len(nums2): return self.findMedianSortedArrays(nums2, nums1)
+
+        len_1, len_2 = len(nums1), len(nums2) # len_1 < len_2
+        nums1 = [float('-inf')] + nums1 + [float('inf')]
+        nums2 = [float('-inf')] + nums2 + [float('inf')]
+
+        left, right = 0, len_1
+        while left <= right:
+            mid_1 = left + (right - left) // 2
+            mid_2 = (len_1 + len_2 + 1) // 2 - mid_1
+            if nums1[mid_1] <= nums2[mid_2 + 1] and nums1[mid_1 + 1] >= nums2[mid_2]:
+                break
+            elif nums1[mid_1 + 1] < nums2[mid_2]: # nums1右边的数比nums2左边的数小，nums1的切割点需要右移
+                left = mid_1 + 1
+            else: # nums1左边的数比nums2右边的数大，nums1的切割点需要左移
+                right = mid_1 - 1
+
+        left_max = max(nums1[mid_1], nums2[mid_2])
+        right_min = min(nums1[mid_1 + 1], nums2[mid_2 + 1])
+
+        if (len_1 + len_2) % 2:
+            return left_max
+        else:
+            return 0.5 * (left_max + right_min)
+
+
+
